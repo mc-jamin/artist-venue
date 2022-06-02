@@ -18,7 +18,11 @@ from forms import *
 
 app = Flask(__name__)
 moment = Moment(app)
-app.config.from_object('config')
+
+app.config['SQLALCHEMY_DATABASE_URI']='postgresql://jamin:1234@localhost:5432/fyyur'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+#app.config.from_object('config')
 db = SQLAlchemy(app)
 
 # TODO: connect to a local postgresql database
@@ -511,7 +515,7 @@ if not app.debug:
 
 # Default port:
 if __name__ == '__main__':
-    app.run()
+    app.run(host='127.0.0.1', port=5000, debug=True)
 
 # Or specify port manually:
 '''
