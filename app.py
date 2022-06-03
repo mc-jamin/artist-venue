@@ -36,6 +36,10 @@ migrate = Migrate(app, db)
 #----------------------------------------------------------------------------#
 # Models.
 #----------------------------------------------------------------------------#
+artist_identifier= db.Table('artist_identifier',
+    db.Column ('venue_id', db.Integer, db.ForeignKey('venue.id')),
+    db.Column('artist_id', db.Integer, db.ForeignKey('artist.id'))
+  )
 
 class Venue(db.Model):
     __tablename__ = 'venue'
@@ -48,7 +52,7 @@ class Venue(db.Model):
     phone = db.Column(db.String(120))
     image_link = db.Column(db.String(500))
     facebook_link = db.Column(db.String(120))
-    #venue_link = db.relationship('Artist', backref='venue_table', lazy=True)
+    venue_link = db.relationship('Artist', secondary=artist_identifier)
 
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
 
@@ -64,6 +68,7 @@ class Artist(db.Model):
     image_link = db.Column(db.String(500))
     facebook_link = db.Column(db.String(120))
     #venue_id = db.Column(db.Integer, db.ForeignKey('venue.id'))
+
 
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
 
@@ -122,7 +127,7 @@ def search_venues():
 def show_venue(venue_id):
   # shows the venue page with the given venue_id
   # TODO: replace with real venue data from the venues table, using venue_id
-  return render_template('pages/show_venue.html', venue=Venue.query.filter_by(venue_id=venue_id).order_by('name'))
+  return render_template('pages/show_venue.html', venues=Venue.query.filter_by(id=venue_id))
 
 
 
@@ -160,17 +165,23 @@ def create_venue_submission():
   
   return render_template('pages/home.html')
 
+
 @app.route('/venues/<venue_id>', methods=['DELETE'])
 def delete_venue(venue_id):
-  delete_id = Venue.query.get('id')
-  db.session.delete(delete_id)
-  db.session.commit()
+  try:    
+    Venue.query.filter_by(id=venue_id).delete()    
+    db.session.commit()    
+  except:
+    flash('ERROR!')
+  finally:
+    db.session.close()
+
   # TODO: Complete this endpoint for taking a venue_id, and using
   # SQLAlchemy ORM to delete a record. Handle cases where the session commit could fail.
 
   # BONUS CHALLENGE: Implement a button to delete a Venue on a Venue Page, have it so that
   # clicking that button delete it from the db then redirect the user to the homepage
-  return None
+  return redirect(url_for('index'))
 
 
 
@@ -202,7 +213,7 @@ def show_artist(artist_id):
   # shows the artist page with the given artist_id
   # TODO: replace with real artist data from the artist table, using artist_id
 
-  return render_template('pages/show_artist.html', artist= Artist.query.filter_by(artist_id=artist_id).order_by('name'))
+  return render_template('pages/show_artist.html', artists= Artist.query.filter_by(id=artist_id))
 
 
 
@@ -235,12 +246,11 @@ def edit_artist_submission(artist_id):
 
 @app.route('/venues/<int:venue_id>/edit', methods=['GET'])
 def edit_venue(venue_id):
-  form = VenueForm()
+  form = VenueForm(request.form)
 
   edit_artist_form = Artist.query.get('venue_id')
   
   venue={
-    'id': venue_id,
     edit_artist_form.name: form.name.data,
     edit_artist_form.city: form.city.data,
     edit_artist_form.state: form.state.data,
@@ -319,6 +329,8 @@ def create_artist_submission():
 def shows():
   # displays list of shows at /shows
   # TODO: replace with real venues data.
+
+
   data=[{
     "venue_id": 1,
     "venue_name": "The Musical Hop",
@@ -365,13 +377,27 @@ def create_shows():
 
 @app.route('/shows/create', methods=['POST'])
 def create_show_submission():
-  # called to create new shows in the db, upon submitting new show listing form
-  # TODO: insert form data as a new Show record in the db, instead
+  form = ShowForm(request.form)
+  try:
+    artist_id = form.artist_id.data
+    venue_id= form.venue_id.data
 
-  # on successful db insert, flash success
-  flash('Show was successfully listed!')
-  # TODO: on unsuccessful db insert, flash an error instead.
-  # e.g., flash('An error occurred. Show could not be listed.')
+    statement = artist_identifier.insert().values(venue_id=venue_id, artist_id=artist_id)
+    db.session.execute(statement)
+    db.session.commit()
+
+    # on successful db insert, flash success
+    flash('Show was successfully listed!')
+
+  except:
+    #TODO: on unsuccessful db insert, flash an error instead.
+    flash('An error occurred. Show could not be listed.')
+
+  finally:
+    db.session.close()
+
+  # called to create new shows in the db, upon submitting new show listing form
+  # TODO: insert form data as a new Show record in the db, instead 
   # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
   return render_template('pages/home.html')
 
@@ -400,7 +426,7 @@ if not app.debug:
 
 # Default port:
 if __name__ == '__main__':
-    app.run(host='127.0.0.1', port=5000, debug=True)
+    app.run(host='127.0.0.1', port=3000, debug=True)
 
 # Or specify port manually:
 '''

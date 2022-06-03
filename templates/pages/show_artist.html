@@ -1,8 +1,12 @@
 {% extends 'layouts/main.html' %}
-{% block title %}{{ artist.name }} | Artist{% endblock %}
 {% block content %}
+{% block title %} Artist {% endblock %}
+
+
 <div class="row">
 	<div class="col-sm-6">
+	{% for artist in artists %}
+	
 		<h1 class="monospace">
 			{{ artist.name }}
 		</h1>
@@ -10,9 +14,9 @@
 			ID: {{ artist.id }}
 		</p>
 		<div class="genres">
-			{% for genre in artist.genres %}
-			<span class="genre">{{ genre }}</span>
-			{% endfor %}
+			
+			<span class="genre">{{ artist.genres }}</span>
+			
 		</div>
 		<p>
 			<i class="fas fa-globe-americas"></i> {{ artist.city }}, {{ artist.state }}
@@ -73,6 +77,6 @@
 </section>
 
 <a href="/artists/{{ artist.id }}/edit"><button class="btn btn-primary btn-lg">Edit</button></a>
-
+	{% endfor %}
 {% endblock %}
 
