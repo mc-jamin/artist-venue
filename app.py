@@ -168,20 +168,29 @@ def create_venue_submission():
 
 @app.route('/venues/<venue_id>', methods=['DELETE'])
 def delete_venue(venue_id):
+  error=True
   try:    
     Venue.query.filter_by(id=venue_id).delete()    
-    db.session.commit()    
+    db.session.commit()   
+    error=False 
   except:
     flash('ERROR!')
+    error=True
   finally:
     db.session.close()
+  if error:
+    return render_template('pages/venues.html')
+  else:
+    return render_template('pages/home.html')
+
+
 
   # TODO: Complete this endpoint for taking a venue_id, and using
   # SQLAlchemy ORM to delete a record. Handle cases where the session commit could fail.
 
   # BONUS CHALLENGE: Implement a button to delete a Venue on a Venue Page, have it so that
   # clicking that button delete it from the db then redirect the user to the homepage
-  return redirect(url_for('index'))
+  
 
 
 
@@ -221,53 +230,29 @@ def show_artist(artist_id):
 #  ----------------------------------------------------------------
 @app.route('/artists/<int:artist_id>/edit', methods=['GET'])
 def edit_artist(artist_id):
-  form = ArtistForm()
-  edit_artist_form = Artist.query.get('artist_id')
+  form = ArtistForm(request.form)
   
-  artist={
-    'id': artist_id,
-    edit_artist_form.name: form.name.data,
-    edit_artist_form.city: form.city.data,
-    edit_artist_form.state: form.state.data,
-    edit_artist_form.phone: form.phone.data,
-    edit_artist_form.genres: form.genres.data,
-    edit_artist_form.image_link: form.image_link.data,
-    edit_artist_form.facebook_link: form.facebook_link.data
-  }
   # TODO: populate form with fields from artist with ID <artist_id>
-  return render_template('forms/edit_artist.html', form=form, artist=artist)
+  return render_template('forms/edit_artist.html', form=form, artists=Artist.query.filter_by(id=artist_id))
 
-@app.route('/artists/<int:artist_id>/edit', methods=['POST'])
+@app.route('/artists/edit/<artist_id>', methods=['POST'])
 def edit_artist_submission(artist_id):
   # TODO: take values from the form submitted, and update existing
   # artist record with ID <artist_id> using the new attributes
 
   return redirect(url_for('show_artist', artist_id=artist_id))
 
-@app.route('/venues/<int:venue_id>/edit', methods=['GET'])
+@app.route('/venues/<venue_id>/edit')
 def edit_venue(venue_id):
   form = VenueForm(request.form)
-
-  edit_artist_form = Artist.query.get('venue_id')
-  
-  venue={
-    edit_artist_form.name: form.name.data,
-    edit_artist_form.city: form.city.data,
-    edit_artist_form.state: form.state.data,
-    edit_artist_form.phone: form.phone.data,
-    edit_artist_form.genres: form.genres.data,
-    edit_artist_form.image_link: form.image_link.data,
-    edit_artist_form.facebook_link: form.facebook_link.data
-  }
-
   # TODO: populate form with values from venue with ID <venue_id>
-  return render_template('forms/edit_venue.html', form=form, venue=venue)
+  return render_template('forms/edit_venue.html', form=form, venues=Venue.query.filter_by(id=venue_id))
 
-@app.route('/venues/<int:venue_id>/edit', methods=['POST'])
+@app.route('/venues/edit/<int:venue_id>', methods=['POST'])
 def edit_venue_submission(venue_id):
   # TODO: take values from the form submitted, and update existing
   # venue record with ID <venue_id> using the new attributes
-  return redirect(url_for('show_venue', venue_id=venue_id))
+  return render_template('pages/show_venue.html', venues=Venue.query.filter_by(id=venue_id))
 
 
 

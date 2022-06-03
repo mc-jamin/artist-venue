@@ -30,7 +30,9 @@
 				headers: {
 					'Content-Type': 'application/json'
 				}
-			}).then( console.log(e.target.dataset['id']) ).catch(console.log('done'))
+			})
+			.then( ()=>window.location.reload()  )
+			.catch(console.log('done'))
 			
 		}
 	}
