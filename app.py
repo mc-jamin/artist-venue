@@ -191,6 +191,25 @@ def delete_venue(venue_id):
 
 
 
+@app.route('/artists/<artist_id>', methods=['DELETE'])
+def delete_artist(artist_id):
+  error=True
+  try:    
+    Artist.query.filter_by(id=artist_id).delete()    
+    db.session.commit()   
+    error=False 
+  except:
+    flash('ERROR!')
+    error=True
+  finally:
+    db.session.close()
+  
+  return redirect(url_for('index'))
+
+
+
+
+
   # TODO: Complete this endpoint for taking a venue_id, and using
   # SQLAlchemy ORM to delete a record. Handle cases where the session commit could fail.
 
@@ -264,7 +283,7 @@ def edit_artist_submission(artist_id):
   # TODO: take values from the form submitted, and update existing
   # artist record with ID <artist_id> using the new attributes
 
-  return render_template('pages/show_artist.html', artists=Artist.query.filter_by(id=artist_id))
+  return render_template('pages/show_artist.html', artists=Artist.query.filter_by(id=artist_id), shows = Venue_Artist.query.filter_by(artist_id=artist_id))
 
 @app.route('/venues/<venue_id>/edit')
 def edit_venue(venue_id):
@@ -305,7 +324,7 @@ def edit_venue_submission(venue_id):
   # TODO: take values from the form submitted, and update existing
   # artist record with ID <artist_id> using the new attributes
 
-  return render_template('pages/show_venue.html', venues=Venue.query.filter_by(id=venue_id))
+  return render_template('pages/show_venue.html', venues=Venue.query.filter_by(id=venue_id), shows = Venue_Artist.query.filter_by(artist_id=artist_id))
 
 
 

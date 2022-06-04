@@ -1,17 +1,58 @@
 {% extends 'layouts/main.html' %}
 {% block title %}Fyyur | Artists{% endblock %}
 {% block content %}
-<ul class="items">
-	{% for artist in artists %}
-	<li><a id ="venue_link_new" href="/artists/{{artist.id}}"> <h4>{{artist.name}}</h4> </a></li>
-	{% endfor %}
-</ul>
-<style>	
+{% for artist in artists %}
+<div id="align-btn">	
+	<div>
+		<ul class="items">		
+			<li><a id ="venue_link_new" href="/artists/{{artist.id}}"> <h4>{{artist.name}}</h4> </a></li>			
+		</ul>
+	</div>
+	<div>
+		<button type="submit" data-id="{{artist.id}}" class="delete-button">&cross;</button>		
+	</div>		
+</div>	
+{% endfor %}
+<script>
+	const btns = document.querySelectorAll('.delete-button')
+	for (let btn of btns){
+		btn.onclick=(e)=>{
+			e.preventDefault()
+			artist_id= e.target.dataset['id']
+			fetch('/artists/'+artist_id,
+			{
+				method: 'DELETE',
+				headers: {
+					'Content-Type': 'application/json'
+				}
+			})
+			.then( ()=>window.location.reload()  )
+			.catch(console.log('done'))			
+		}
+	}
+
+</script>
+			
+
+
+
+<style>
+	#align-btn{
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+		width: 50%;		
+	}
 	#venue_link_new:hover{
 		color: red
 	}
-</style>
+	button {
+		color: red;
+		background-color: white;
+		border-color: white;
+	}
 
+</style>
 {% endblock %}
 
 

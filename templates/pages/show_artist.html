@@ -64,7 +64,8 @@
 	</div>
 </section>
 <section>
-	<h2 class="monospace">{{ artists.count() }} Past {% if artists.count() == 1 %}Show{% else %}Shows{% endif %}</h2>
+	
+	<h2 class="monospace">{{ shows.count() }} Past {% if shows.count() == 1 %}Show{% else %}Shows{% endif %}</h2>
 	<div class="row">
 		{% for my_show in shows %}
 		<div class="col-sm-4">
