@@ -58,7 +58,7 @@
 		<div class="col-sm-4">
 			<div class="tile tile-show">
 				<img src="{{ show.image_link }}" alt="Show Artist Image" />
-				<h5><a href="/venues/{{ venue.venue_id }}">{{ show.venue_id }}</a></h5>
+				<h5><a href="/artists/{{ show.artist_id }}">{{ show.artist_id }}</a></h5>
 				<h6>{{ show.start_time|datetime('full') }}</h6>
 			</div>
 		</div>
@@ -72,8 +72,8 @@
 		{%for show in shows %}
 		<div class="col-sm-4">
 			<div class="tile tile-show">
-				<img src="{{ show.artist_image_link }}" alt="Show Artist Image" />
-				<h5><a href="/venues/{{ show.venue_id }}">{{ show.venue_id }}</a></h5>
+				<img src="{{ show.image_link }}" alt="Show Artist Image" />
+				<h5><a href="/artists/{{ show.artist_id }}">{{ show.artist_id }}</a></h5>
 				<h6>{{ show.start_time|datetime('full') }}</h6>
 			</div>
 		</div>
