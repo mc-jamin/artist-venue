@@ -20,6 +20,7 @@ from flask_migrate import Migrate
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
 
 app.config.from_object('config')
 db = SQLAlchemy(app)
@@ -28,9 +29,6 @@ migrate = Migrate(app, db)
 
 
 # TODO: connect to a local postgresql database
-
-
-
 
 
 #----------------------------------------------------------------------------#
@@ -74,7 +72,7 @@ class Artist(db.Model):
     website_link = db.Column(db.String(120))
     seeking_venue = db.Column(db.Boolean)
     seeking_description = db.Column(db.String(500))
-    #venue_id = db.Column(db.Integer, db.ForeignKey('venue.id'))
+    venue_id = db.Column(db.Integer, db.ForeignKey('venue.id'))
 
 
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
@@ -189,10 +187,8 @@ def delete_venue(venue_id):
     error=True
   finally:
     db.session.close()
-  if error:
-    return render_template('pages/venues.html')
-  else:
-    return render_template('pages/home.html')
+  
+  return render_template('pages/home.html')
 
 
 
@@ -202,9 +198,6 @@ def delete_venue(venue_id):
   # BONUS CHALLENGE: Implement a button to delete a Venue on a Venue Page, have it so that
   # clicking that button delete it from the db then redirect the user to the homepage
   
-
-
-
 
 #  Artists
 #  ----------------------------------------------------------------
@@ -241,29 +234,121 @@ def show_artist(artist_id):
 #  ----------------------------------------------------------------
 @app.route('/artists/<int:artist_id>/edit', methods=['GET'])
 def edit_artist(artist_id):
-  form = ArtistForm(request.form)
-  
-  # TODO: populate form with fields from artist with ID <artist_id>
+  form = ArtistForm(request.form)  
+  #populate form with fields from artist with ID <artist_id>
   return render_template('forms/edit_artist.html', form=form, artists=Artist.query.filter_by(id=artist_id))
 
-@app.route('/artists/edit/<artist_id>', methods=['POST'])
+@app.route('/artists/<artist_id>/edit/', methods=['POST'])
 def edit_artist_submission(artist_id):
+  form = ArtistForm(request.form)  
+  edit_artist = Artist.query.filter_by(id=artist_id).first()
+
+  try:
+    edit_artist.name = form.name.data
+    edit_artist.city = form.city.data
+    edit_artist.state = form.state.data
+    edit_artist.phone = form.phone.data
+    edit_artist.genres = form.genres.data
+    edit_artist.image_link = form.image_link.data
+    edit_artist.facebook_link = form.facebook_link.data
+    edit_artist.website_link = form.website_link.data
+    edit_artist.seeking_venue = form.seeking_venue.data
+    edit_artist.seeking_description = form.seeking_description.data    
+
+    #edit_artist= db.session.merge(edit_artist)
+    #db.session.flush()
+    db.session.commit()
+    # on successful db insert, flash success
+    flash('Artist ' + request.form['name'] + ' was successfully updated!')
+  except:
+    #on unsuccessful db insert, flash an error instead.
+    flash('An error occurred. Artist ' + request.form['name'] + ' could not be updated.')
+  finally:
+    db.session.close()
+
   # TODO: take values from the form submitted, and update existing
   # artist record with ID <artist_id> using the new attributes
 
-  return redirect(url_for('show_artist', artist_id=artist_id))
+  return render_template('pages/show_artist.html', artists=Artist.query.filter_by(id=artist_id))
 
 @app.route('/venues/<venue_id>/edit')
 def edit_venue(venue_id):
   form = VenueForm(request.form)
-  # TODO: populate form with values from venue with ID <venue_id>
+  #populate form with values from venue with ID <venue_id>
   return render_template('forms/edit_venue.html', form=form, venues=Venue.query.filter_by(id=venue_id))
 
-@app.route('/venues/edit/<int:venue_id>', methods=['POST'])
+
+@app.route('/venues/<venue_id>/edit/', methods=['POST'])
 def edit_venue_submission(venue_id):
+  form = VenueForm(request.form)  
+  edit_venue = Venue.query.filter_by(id=venue_id).first()
+
+  try:
+    edit_venue.name = form.name.data
+    edit_venue.city = form.city.data
+    edit_venue.state = form.state.data
+    edit_venue.address = form.address.data
+    edit_venue.phone = form.phone.data
+    edit_venue.image_link = form.image_link.data
+    edit_venue.facebook_link = form.facebook_link.data
+    edit_venue.genres = form.genres.data
+    edit_venue.website_link = form.website_link.data
+    edit_venue.seeking_talent = form.seeking_talent.data
+    edit_venue.seeking_description = form.seeking_description.data
+
+    #edit_artist= db.session.merge(edit_artist)
+    #db.session.flush()
+    db.session.commit()
+    # on successful db insert, flash success
+    flash('Venue ' + request.form['name'] + ' was successfully updated!')
+  except:
+    #on unsuccessful db insert, flash an error instead.
+    flash('An error occurred. Venue ' + request.form['name'] + ' could not be updated.')
+  finally:
+    db.session.close()
+
+  # TODO: take values from the form submitted, and update existing
+  # artist record with ID <artist_id> using the new attributes
+
+  return render_template('pages/show_venue.html', venues=Venue.query.filter_by(id=venue_id))
+
+
+
+"""
+@app.route('/venues/<int:venue_id>/edit/', methods=['POST'])
+def edit_venue_submission(venue_id):
+  form = VenueForm(request.form)  
+  edit_venue = Venue.query.filter_by(id=venue_id).first()
+
+  try:
+    edit_venue.name = form.name.data
+    edit_venue.city = form.city.data
+    edit_venue.state = form.state.data
+    edit_venue.phone = form.phone.data
+    edit_venue.genres = form.genres.data
+    edit_venue.image_link = form.image_link.data
+    edit_venue.facebook_link = form.facebook_link.data
+    edit_venue.website_link = form.website_link.data
+    edit_venue.seeking_venue = form.seeking_venue.data
+    edit_venue.seeking_description = form.seeking_description.data    
+
+    
+    db.session.commit()
+    # on successful db insert, flash success
+    flash('Venue' + request.form['name'] + ' was successfully updated!')
+  except:
+    #on unsuccessful db insert, flash an error instead.
+    flash('An error occurred. Venue ' + request.form['name'] + ' could not be updated.')
+  finally:
+    db.session.close()
+
+
+
   # TODO: take values from the form submitted, and update existing
   # venue record with ID <venue_id> using the new attributes
   return render_template('pages/show_venue.html', venues=Venue.query.filter_by(id=venue_id))
+
+"""
 
 
 
