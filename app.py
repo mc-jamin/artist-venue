@@ -52,6 +52,10 @@ class Venue(db.Model):
     phone = db.Column(db.String(120))
     image_link = db.Column(db.String(500))
     facebook_link = db.Column(db.String(120))
+    genres = db.Column(db.String(120))
+    website_link = db.Column(db.String(500))
+    seeking_talent = db.Column(db.Boolean)
+    seeking_description = db.Column(db.String(500))
     venue_link = db.relationship('Artist', secondary=artist_identifier)
 
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
@@ -67,6 +71,9 @@ class Artist(db.Model):
     genres = db.Column(db.String(120))
     image_link = db.Column(db.String(500))
     facebook_link = db.Column(db.String(120))
+    website_link = db.Column(db.String(120))
+    seeking_venue = db.Column(db.Boolean)
+    seeking_description = db.Column(db.String(500))
     #venue_id = db.Column(db.Integer, db.ForeignKey('venue.id'))
 
 
@@ -150,7 +157,11 @@ def create_venue_submission():
     phone = form.phone.data
     image_link = form.image_link.data
     facebook_link = form.facebook_link.data
-    form_data = Venue(name= name,city = city,state = state,address = address,phone= phone,image_link= image_link,facebook_link= facebook_link )
+    genres = form.genres.data
+    website_link = form.website_link.data
+    seeking_talent = form.seeking_talent.data
+    seeking_description = form.seeking_description.data
+    form_data = Venue(name= name,city = city,state = state,address = address,phone= phone,image_link= image_link,facebook_link= facebook_link, genres=genres, website_link=website_link, seeking_talent=seeking_talent, seeking_description=seeking_description )
 
     db.session.add(form_data)
     db.session.commit()
@@ -276,15 +287,11 @@ def create_artist_submission():
     genres = form.genres.data
     image_link = form.image_link.data
     facebook_link = form.facebook_link.data
-    artist_data = Artist(
-      name= name,
-      city = city,
-      state = state,
-      phone= phone,
-      genres=genres,
-      image_link= image_link,
-      facebook_link= facebook_link 
-      )
+    website_link = form.website_link.data
+    seeking_venue = form.seeking_venue.data
+    seeking_description = form.seeking_description.data
+
+    artist_data = Artist(name= name,city = city,state = state,phone= phone,genres=genres,image_link= image_link,facebook_link= facebook_link, website_link=website_link, seeking_venue=seeking_venue, seeking_description=seeking_description )
 
     db.session.add(artist_data)
     db.session.commit()
