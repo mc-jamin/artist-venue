@@ -131,7 +131,7 @@ def search_venues():
 def show_venue(venue_id):
   # shows the venue page with the given venue_id
   # TODO: replace with real venue data from the venues table, using venue_id
-  return render_template('pages/show_venue.html', venues=Venue.query.filter_by(id=venue_id))
+  return render_template('pages/show_venue.html', venues=Venue.query.filter_by(id=venue_id), shows = Venue_Artist.query.filter_by(venue_id=venue_id))
 
 
 
@@ -187,7 +187,7 @@ def delete_venue(venue_id):
   finally:
     db.session.close()
   
-  return render_template('pages/home.html')
+  return redirect(url_for('index'))
 
 
 
@@ -221,7 +221,7 @@ def show_artist(artist_id):
   # shows the artist page with the given artist_id
   # TODO: replace with real artist data from the artist table, using artist_id
 
-  return render_template('pages/show_artist.html', artists= Artist.query.filter_by(id=artist_id))
+  return render_template('pages/show_artist.html', artists= Artist.query.filter_by(id=artist_id), shows = Venue_Artist.query.filter_by(artist_id=artist_id))
 
 
 
