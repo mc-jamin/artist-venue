@@ -324,7 +324,7 @@ def edit_venue_submission(venue_id):
   # TODO: take values from the form submitted, and update existing
   # artist record with ID <artist_id> using the new attributes
 
-  return render_template('pages/show_venue.html', venues=Venue.query.filter_by(id=venue_id), shows = Venue_Artist.query.filter_by(artist_id=artist_id))
+  return render_template('pages/show_venue.html', venues=Venue.query.filter_by(id=venue_id), shows = Venue_Artist.query.filter_by(artist_id=venue_id))
 
 
 
